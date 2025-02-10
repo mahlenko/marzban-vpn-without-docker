@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# chmod +x marzban_install.sh
-
 # Останавливаем скрипт при ошибке
 set -e
 
@@ -151,5 +149,6 @@ color_echo 0 "✅ Установка завершена! 🎉"
 color_echo 2 "🔗 Панель управления: https://$DOMAIN/dashboard"
 
 # Добавим конфиги для VLESS
+XRAY_CONFIG_JSON=/opt/marzban/xray_config.json
 jq --argjson vless "$VLESS_REALITY_CONFIG" '.inbounds[0] = $vless' "$XRAY_CONFIG_JSON" > temp.json && mv temp.json "$XRAY_CONFIG_JSON"
 color_echo 2 "Добавлена конфигурация для Vless REALITY"
