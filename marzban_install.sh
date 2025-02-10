@@ -108,9 +108,11 @@ EOF
   fi
 
   # Выпускаем SSL-сертификат, если его нет
-  install_if_missing snapd
-  snap install --classic certbot
-  ln -s /snap/bin/certbot /usr/bin/certbot
+  if [ ! -d "/usr/bin/certbot" ]; then
+    install_if_missing snapd
+    snap install --classic certbot
+    ln -s /snap/bin/certbot /usr/bin/certbot
+  fi
 
   if [ ! -d "/etc/letsencrypt/live/$DOMAIN" ]; then
       certbot --nginx -d $DOMAIN --non-interactive --agree-tos -m admin@$DOMAIN
