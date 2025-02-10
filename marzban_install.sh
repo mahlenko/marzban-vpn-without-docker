@@ -87,7 +87,7 @@ fi
 
 # Спрашиваем домен пользователя
 color_echo 2 "🌐 Введите ваш домен для дашборда:"
-read DOMAIN
+read -r DOMAIN || exit 1
 
 # Настраиваем Nginx
 if [ ! -f "/etc/nginx/sites-available/marzban" ]; then
