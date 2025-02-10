@@ -109,7 +109,7 @@ EOF
 
   # Выпускаем SSL-сертификат, если его нет
   install_if_missing snapd
-  if [ -f "/usr/bin/certbot" ]; then
+  if [ ! -f "/usr/bin/certbot" ]; then
     snap install --classic certbot
     ln -s /snap/bin/certbot /usr/bin/certbot
   fi
