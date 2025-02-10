@@ -10,11 +10,11 @@
 # Установка
 Скрипт установки тестировался на Ubuntu 22.04
 ```bash
-curl -sSL https://raw.githubusercontent.com/mahlenko/marzban-vpn-without-docker/refs/heads/main/marzban_install.sh | bash
+curl -sSL https://raw.githubusercontent.com/mahlenko/marzban-vpn-without-docker/refs/heads/main/marzban_install.sh && chmod +x ./marzban_install.sh && ./marzban_install.sh
 ```
 или wget
 ```bash
-wget -qO- https://raw.githubusercontent.com/mahlenko/marzban-vpn-without-docker/refs/heads/main/marzban_install.sh | bash
+wget -q https://raw.githubusercontent.com/mahlenko/marzban-vpn-without-docker/refs/heads/main/marzban_install.sh && chmod +x ./marzban_install.sh && ./marzban_install.sh
 ```
 
 # Управление
