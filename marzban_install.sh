@@ -27,16 +27,7 @@ install_if_missing unzip
 install_if_missing git
 install_if_missing python3
 install_if_missing python3-pip
-install_if_missing nginx
-install_if_missing snapd
 install_if_missing jq
-
-# Устанавливаем Certbot, если он отсутствует
-if ! command -v certbot &> /dev/null; then
-    snap install core; snap refresh core
-    snap install --classic certbot
-    ln -s /snap/bin/certbot /usr/bin/certbot
-fi
 
 # Устанавливаем Xray, если он отсутствует
 if ! command -v xray &> /dev/null; then
@@ -87,10 +78,17 @@ fi
 
 # Спрашиваем домен пользователя
 color_echo 2 "🌐 Введите ваш домен для дашборда:"
-read -r DOMAIN || exit 1
+read -r DOMAIN
 
-# Настраиваем Nginx
-if [ ! -f "/etc/nginx/sites-available/marzban" ]; then
+if [[ -n "$DOMAIN" ]]; then
+  echo "Используемый домен: $DOMAIN"
+
+  install_if_missing nginx
+
+  # Настраиваем Nginx
+  if [ ! -f "/etc/nginx/sites-available/marzban" ]; then
+    echo "Конфигурация Nginx отсутствует, создаем..."
+
     cat > /etc/nginx/sites-available/marzban <<EOF
 server {
     listen 80;
@@ -105,12 +103,18 @@ server {
     }
 }
 EOF
-    ln -s /etc/nginx/sites-available/marzban /etc/nginx/sites-enabled/marzban
 
-    # Выпускаем SSL-сертификат, если его нет
-    if [ ! -d "/etc/letsencrypt/live/$DOMAIN" ]; then
-        certbot --nginx -d $DOMAIN --non-interactive --agree-tos -m admin@$DOMAIN
-    fi
+    ln -s /etc/nginx/sites-available/marzban /etc/nginx/sites-enabled/marzban
+  fi
+
+  # Выпускаем SSL-сертификат, если его нет
+  if [ ! -d "/etc/letsencrypt/live/$DOMAIN" ]; then
+      certbot --nginx -d $DOMAIN --non-interactive --agree-tos -m admin@$DOMAIN
+  fi
+
+else
+  DOMAIN=$(hostname -I | awk '{print $1}')
+  echo "Домен не введен, используем IP: $DOMAIN"
 fi
 
 XRAY_PRIVATE_KEY=$(xray x25519 | grep -oP 'Private key: \K.*')
@@ -146,7 +150,7 @@ VLESS_REALITY_CONFIG='{
 
 # Выводим информацию о завершении установки
 color_echo 0 "✅ Установка завершена! 🎉"
-color_echo 2 "🔗 Панель управления: https://$DOMAIN/dashboard"
+color_echo 2 "🔗 Панель управления: http://$DOMAIN/dashboard"
 
 # Добавим конфиги для VLESS
 XRAY_CONFIG_JSON=/opt/marzban/xray_config.json
