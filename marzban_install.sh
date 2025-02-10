@@ -19,11 +19,11 @@ color_echo() {
 # Проверка и установка зависимостей
 install_if_missing() {
     if ! dpkg -l | grep -q "^ii  $1 "; then
-        apt install -y -q "$1"
+        apt install -y -qq "$1"
     fi
 }
 
-apt update -y -q
+apt update -y -qq
 install_if_missing curl
 install_if_missing unzip
 install_if_missing git
@@ -87,12 +87,12 @@ EOF
     systemctl enable --now marzban
 fi
 
+# Спрашиваем домен пользователя
+color_echo 2 "🌐 Введите ваш домен для дашборда:"
+read DOMAIN
+
 # Настраиваем Nginx
 if [ ! -f "/etc/nginx/sites-available/marzban" ]; then
-    # Спрашиваем домен пользователя
-    color_echo 2 "🌐 Введите ваш домен для дашборда:"
-    read DOMAIN
-
     cat > /etc/nginx/sites-available/marzban <<EOF
 server {
     listen 80;
