@@ -12,6 +12,11 @@
 ```bash
 curl -sSL https://raw.githubusercontent.com/mahlenko/marzban-vpn-without-docker/refs/heads/main/marzban_install.sh | bash
 ```
+или wget
+```bash
+wget -qO- https://raw.githubusercontent.com/mahlenko/marzban-vpn-without-docker/refs/heads/main/marzban_install.sh | bash
+```
+
 # Управление
 - `systemctl start marzban`
 - `systemctl stop marzban`
