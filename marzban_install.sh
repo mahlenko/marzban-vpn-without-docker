@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# chmod +x marzban_install.sh
+
 # Останавливаем скрипт при ошибке
 set -e
 
@@ -21,37 +23,12 @@ install_if_missing() {
     fi
 }
 
-# Конфигурационный файл
-ENV_FILE="/opt/marzban/.env"
-XRAY_CONFIG_JSON=/opt/marzban/xray_config.json
-
-update_env() {
-  local key="$1"
-    local new_value="$2"
-
-    # Проверка, существует ли файл .env
-    if [[ ! -f "$ENV_FILE" ]]; then
-      echo "Ошибка: файл $ENV_FILE не найден."
-      return 1
-    fi
-
-    # Экранируем возможные специальные символы в значении
-    new_value=$(echo "$new_value" | sed 's/[&/\]/\\&/g')
-
-    # Заменить значение переменной, игнорируя комментарии
-    sed -i "s#^\($key=\)[^#]*#\1$new_value#" "$ENV_FILE"
-
-    echo "Значение для $key обновлено на $new_value в файле $ENV_FILE"
-}
-
 apt update -y -q
 install_if_missing curl
 install_if_missing unzip
 install_if_missing git
 install_if_missing python3
 install_if_missing python3-pip
-install_if_missing postgresql
-install_if_missing postgresql-contrib
 install_if_missing nginx
 install_if_missing snapd
 install_if_missing jq
@@ -77,19 +54,12 @@ if ! grep -q '"api"' $CONFIG_FILE; then
     systemctl restart xray
 fi
 
-# Настраиваем базу данных PostgreSQL
-sudo -u postgres psql -tc "SELECT 1 FROM pg_roles WHERE rolname='marzban'" | grep -q 1 || sudo -u postgres psql -c "CREATE USER marzban WITH PASSWORD 'marzban';"
-sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname='marzban'" | grep -q 1 || sudo -u postgres psql -c "CREATE DATABASE marzban OWNER marzban;"
-
 # Устанавливаем Marzban, если он отсутствует
-ENV_FILE="/opt/marzban/.env"
 if [ ! -d "/opt/marzban" ]; then
     color_echo 2 "Устанавливаем Marzban..."
     cd /opt && git clone https://github.com/Gozargah/Marzban.git marzban
     cd marzban && pip3 install -r requirements.txt
 
-    cp /opt/marzban/.env.example ${ENV_FILE}
-    update_env "SQLALCHEMY_DATABASE_URL" "postgresql://marzban:marzban@localhost/marzban"
     alembic upgrade head
 
     # Добавляем администратора
@@ -148,9 +118,6 @@ fi
 XRAY_PRIVATE_KEY=$(xray x25519 | grep -oP 'Private key: \K.*')
 SHORT_ID=$(openssl rand -hex 8)
 
-update_env "XRAY_PRIVATE_KEY" "$XRAY_PRIVATE_KEY"
-update_env "SHORT_ID" "$SHORT_ID"
-
 VLESS_REALITY_CONFIG='{
   "tag": "VLESS TCP REALITY",
   "listen": "0.0.0.0",
@@ -180,14 +147,9 @@ VLESS_REALITY_CONFIG='{
 }'
 
 # Выводим информацию о завершении установки
-color_echo 0 "---------------------------------------------------------------"
 color_echo 0 "✅ Установка завершена! 🎉"
-color_echo 0 "---------------------------------------------------------------"
-color_echo 2 "🔗 https://marzban-docs.sm1ky.com/"
-color_echo 4 "🔗 Панель управления: https://$DOMAIN/dashboard"
+color_echo 2 "🔗 Панель управления: https://$DOMAIN/dashboard"
 
 # Добавим конфиги для VLESS
 jq --argjson vless "$VLESS_REALITY_CONFIG" '.inbounds[0] = $vless' "$XRAY_CONFIG_JSON" > temp.json && mv temp.json "$XRAY_CONFIG_JSON"
 color_echo 2 "Добавлена конфигурация для Vless REALITY"
-
-rm marzban_install.sh
