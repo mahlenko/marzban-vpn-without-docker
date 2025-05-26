@@ -78,12 +78,13 @@ EOF
 fi
 
 # Спрашиваем домен пользователя
-color_echo 2 "🌐 Введите ваш домен для дашборда:"
+color_echo 2 "🌐 Enter your domain for the dashboard:"
 read -r DOMAIN
 
 if [[ -n "$DOMAIN" ]]; then
-  echo "Используемый домен: $DOMAIN"
+  echo "Domain used: $DOMAIN"
 
+  install_if_missing snapd
   install_if_missing nginx
 
   # Настраиваем Nginx
@@ -121,7 +122,7 @@ EOF
 
 else
   DOMAIN=$(hostname -I | awk '{print $1}')
-  echo "Домен не введен, используем IP: $DOMAIN"
+  echo "The domain has not been entered, we use the IP: $DOMAIN"
 fi
 
 XRAY_PRIVATE_KEY=$(xray x25519 | grep -oP 'Private key: \K.*')
@@ -156,13 +157,13 @@ VLESS_REALITY_CONFIG='{
 }'
 
 # Выводим информацию о завершении установки
-color_echo 0 "✅ Установка завершена! 🎉"
-color_echo 2 "🔗 Панель управления: http://$DOMAIN/dashboard"
+color_echo 0 "✅ The installation is complete! 🎉"
+color_echo 2 "🔗 Control panel: http://$DOMAIN/dashboard"
 
 # Добавим конфиги для VLESS
 XRAY_CONFIG_JSON=/opt/marzban/xray_config.json
 jq --argjson vless "$VLESS_REALITY_CONFIG" '.inbounds[0] = $vless' "$XRAY_CONFIG_JSON" > temp.json && mv temp.json "$XRAY_CONFIG_JSON"
-color_echo 2 "Добавлена конфигурация для Vless REALITY"
+color_echo 2 "Added configuration for Bless REALITY"
 
 systemctl restart marzban
 rm ./marzban_install.sh
