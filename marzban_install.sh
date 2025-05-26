@@ -70,8 +70,9 @@ After=network.target
 [Service]
 User=root
 WorkingDirectory=/opt/marzban
-ExecStart=/usr/bin/python3 /opt/marzban/main.py
+ExecStart=/opt/marzban/venv/bin/python /opt/marzban/main.py
 Restart=always
+Environment=PATH=/opt/marzban/venv/bin:/usr/bin:/bin
 
 [Install]
 WantedBy=multi-user.target
