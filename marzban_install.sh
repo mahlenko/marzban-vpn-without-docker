@@ -48,8 +48,11 @@ fi
 if [ ! -d "/opt/marzban" ]; then
     color_echo 2 "Install Marzban Dashboard..."
     cd /opt && git clone https://github.com/Gozargah/Marzban.git marzban
-    cd marzban && python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt
-
+    
+    cd /opt/marzban 
+    python3 -m venv venv
+    source venv/bin/activate 
+    pip install -r requirements.txt
     alembic upgrade head
 
     # Добавляем администратора
