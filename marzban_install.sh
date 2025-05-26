@@ -28,10 +28,11 @@ install_if_missing git
 install_if_missing python3
 install_if_missing python3-pip
 install_if_missing jq
+install_if_missing python3-venv
 
 # Устанавливаем Xray, если он отсутствует
 if ! command -v xray &> /dev/null; then
-    color_echo 2 "Устанавливаем Xray..."
+    color_echo 2 "Install Xray..."
     bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install
 fi
 
@@ -45,14 +46,14 @@ fi
 
 # Устанавливаем Marzban, если он отсутствует
 if [ ! -d "/opt/marzban" ]; then
-    color_echo 2 "Устанавливаем Marzban..."
+    color_echo 2 "Install Marzban Dashboard..."
     cd /opt && git clone https://github.com/Gozargah/Marzban.git marzban
-    cd marzban && pip3 install -r requirements.txt
+    cd marzban && python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt
 
     alembic upgrade head
 
     # Добавляем администратора
-    color_echo 2 "🔑 Создаём администратора"
+    color_echo 2 "🔑 Create user admin"
     /opt/marzban/marzban-cli.py admin create --sudo
 fi
 
